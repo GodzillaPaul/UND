@@ -313,3 +313,10 @@ tr:last-child td { border-bottom: 0; }
 @media(max-width: 480px) {
   .extra-mini-grid { grid-template-columns: 1fr; }
 }
+
+/* ── 第十一條停繳列樣式 ── */
+tr.row-stopped td { color: var(--text3, #aaa); }
+tr.row-stopped td.pos { color: var(--text3, #aaa); }
+tr.row-stopped td.neg { color: var(--text3, #aaa); }
+.metric-warn { border: 1px solid rgba(220,0,80,.25); background: rgba(220,0,80,.04); border-radius: 10px; }
+

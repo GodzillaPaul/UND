@@ -45,6 +45,31 @@ function getHighFeeDiscount(t) {
   return 0;
 }
 
+/* ── 第十一條：甲型保額充足比例門檻 ──────────────────────────
+   分子 = MAX(基本保額, 帳戶價值 + 當次預定投資保費)
+   分母 = 帳戶價值 + 當次預定投資保費
+   比值須 >= 門檻，否則不得繳交當次保費
+   ──────────────────────────────────────────────────────────── */
+function getSAThreshold(age) {
+  if (age <= 30) return 1.90;
+  if (age <= 40) return 1.60;
+  if (age <= 50) return 1.40;
+  if (age <= 60) return 1.20;
+  if (age <= 70) return 1.10;
+  if (age <= 90) return 1.02;
+  return 1.00;
+}
+
+function canPayPremium(ptype, SA, avBefore, investAmt, age) {
+  // 乙型不受此限制
+  if (ptype !== 'A') return true;
+  // investAmt = 當次預定投資保費（扣除費用後尚未配置之金額）
+  const denom = avBefore + investAmt;
+  if (denom <= 0) return false;
+  const numer = Math.max(SA, denom);
+  return (numer / denom) >= getSAThreshold(age);
+}
+
 function fmt(n) { return Math.round(n).toLocaleString('zh-TW'); }
 function pct(r) { return (r * 100).toFixed(1) + '%'; }
 
@@ -95,6 +120,7 @@ function runCalc() {
 
   let av = 0, globalMonth = 0;
   const rows = [];
+  let premiumStopYear = null; // 第十一條：目標保費停止的首個年度
 
   for (let yr = 1; yr <= years; yr++) {
     if (yr > 1 && av === 0) break;
@@ -106,8 +132,30 @@ function runCalc() {
 
     for (let mo = 1; mo <= 12; mo++) {
       globalMonth++;
-      const O_t = (mo === 1) ? target : 0;
-      const O_e = getExtraAtYear(yr);
+
+      // ── 第十一條甲型檢核（僅第1個月繳目標保費時判斷）──
+      // 當次預定投資保費 = 目標保費淨額 + 超額保費淨額（含當月超額）
+      let O_t = (mo === 1) ? target : 0;
+      let O_e = getExtraAtYear(yr);
+
+      if (ptype === 'A' && mo === 1 && globalMonth > 1) {
+        // 計算「當次預定投資保費金額」= 目標保費扣費用後 + 超額扣費用後 - 管理費
+        const investAmt_t = O_t * (1 - adjFee);
+        const investAmt_e = O_e * (1 - 0.05);
+        const investAmt   = investAmt_t + investAmt_e - 100;
+        if (!canPayPremium('A', SA, av, investAmt, ageStart)) {
+          // 比值低於門檻，本年度起停止目標保費與定期定額
+          if (premiumStopYear === null) premiumStopYear = yr;
+          O_t = 0;
+          O_e = 0;
+        }
+      } else if (ptype === 'A' && mo > 1) {
+        // 非第1月：定期定額是否繼續，跟著第1月判斷結果走
+        if (premiumStopYear !== null && yr >= premiumStopYear) {
+          O_e = 0;
+        }
+      }
+
       const O   = O_t + O_e;
       const U   = Math.round(O_t * adjFee) + Math.round(O_e * .05);
       const V   = 100;
@@ -131,14 +179,16 @@ function runCalc() {
     }
     av = Math.round(av);
     const death = ptype === 'B' ? Math.round(SA + av) : Math.round(Math.max(SA, av));
+    const stopped = (premiumStopYear !== null && yr >= premiumStopYear);
     rows.push({
       yr, age: ageStart, feeRate: adjFee,
-      yearTarget: target,
-      yearExtra: getExtraAtYear(yr) * 12,
+      yearTarget: stopped ? 0 : target,
+      yearExtra:  stopped ? 0 : getExtraAtYear(yr) * 12,
       yearFee: Math.round(yFee),
       yearMgmt: Math.round(yMgmt),
       yearCOI: Math.round(yCOI),
-      av, death
+      av, death,
+      premiumStopped: stopped   // 表格可用此欄位標記
     });
   }
 
@@ -151,5 +201,5 @@ function runCalc() {
     if (y && a) stages.push(`年${y}: ${fmt(parseFloat(a))}/月`);
   }
 
-  return { rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi_, avg_, stages };
+  return { rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi_, avg_, stages, premiumStopYear };
 }
