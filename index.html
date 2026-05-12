@@ -1,1 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UND 年年吉祥 試算工具</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animate.css">
+</head>
+<body>
 
+<header class="header">
+  <div class="header-inner">
+    <div class="header-badge">富邦人壽 · UNDA</div>
+    <h1>UND 年年吉祥<br><span>試算工具</span></h1>
+    <div class="header-desc">變額萬能壽險 甲型 ／ 年繳 ／ 金融機構轉帳</div>
+    <div class="header-tags">
+      <span class="htag">甲型</span>
+      <span class="htag">年繳</span>
+      <span class="htag">轉帳享1%折扣</span>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- CARD 1 — 基本資料 -->
+  <div class="card" data-card="1">
+    <div class="card-title">
+      <div class="card-title-icon icon-blue">👤</div>
+      被保人基本資料
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>生日（民國）</label>
+        <input type="text" id="bday" placeholder="690831" maxlength="8" value="690831" oninput="onInputChange()">
+        <span class="hint">格式 YYYMMDD，例如 690831</span>
+      </div>
+      <div class="field">
+        <label>性別</label>
+        <select id="sex" onchange="onInputChange()">
+          <option value="M">男</option>
+          <option value="F">女</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>月存金額（元）</label>
+        <input type="number" id="monthly" value="5000" min="2000" step="100" oninput="onMonthlyChange()">
+        <span class="hint">×12 = 年繳，下限 2,000 元</span>
+      </div>
+    </div>
+
+    <div class="annual-box" style="margin-top:18px">
+      <div>
+        <div class="annual-label">年繳保費（自動計算）</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:3px">
+          <span class="annual-value" id="target-display">60,000</span>
+          <span class="annual-unit">元／年</span>
+        </div>
+      </div>
+    </div>
+    <input type="hidden" id="target">
+
+    <!-- 保額 -->
+    <div class="divider" style="margin-top:22px"></div>
+    <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+      <span style="background:rgba(0,125,106,.10);color:var(--teal);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.06em">保額設定</span>
+    </div>
+
+    <div class="sa-grid">
+      <div>
+        <div class="field">
+          <label>保額（元）</label>
+          <input type="number" id="sa" step="10000" min="10000" value="" oninput="onSAInput()">
+        </div>
+        <div class="sa-badge" id="sa-badge">✓ 最低保額（自動帶入）</div>
+      </div>
+      <div class="info-box">
+        <div class="info-box-label">保額區間</div>
+        <div class="info-range" id="sa-range-vals">—</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;font-weight:600" id="sa-range-note"></div>
+        <!-- 區間進度條 -->
+        <div class="sa-range-bar-wrap" id="sa-range-bar-wrap" style="display:none">
+          <div class="sa-range-bar-track">
+            <div class="sa-range-bar-fill" id="sa-range-bar-fill"></div>
+            <div class="sa-range-bar-thumb" id="sa-range-bar-thumb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 2 — 加碼計劃 -->
+  <div class="card" data-card="2">
+    <div class="card-title">
+      <div class="card-title-icon icon-gold">📈</div>
+      分段定額增額保費（加碼計劃）
+    </div>
+
+    <div class="extra-grid">
+      <div class="extra-card" id="extra-card-1">
+        <div class="extra-card-head">加碼段 1</div>
+        <div class="extra-mini-grid">
+          <div class="mini-field">
+            <label>起始年度</label>
+            <input type="number" id="extra_yr1" placeholder="例: 3" min="1" max="99">
+          </div>
+          <div class="mini-field">
+            <label>月額（元）</label>
+            <input type="number" id="extra_amt1" placeholder="例: 2000" min="0" step="1000">
+          </div>
+        </div>
+      </div>
+      <div class="extra-card" id="extra-card-2">
+        <div class="extra-card-head">加碼段 2</div>
+        <div class="extra-mini-grid">
+          <div class="mini-field">
+            <label>起始年度</label>
+            <input type="number" id="extra_yr2" placeholder="例: 6" min="1" max="99">
+          </div>
+          <div class="mini-field">
+            <label>月額（元）</label>
+            <input type="number" id="extra_amt2" placeholder="例: 3000" min="0" step="1000">
+          </div>
+        </div>
+      </div>
+      <div class="extra-card" id="extra-card-3">
+        <div class="extra-card-head">加碼段 3</div>
+        <div class="extra-mini-grid">
+          <div class="mini-field">
+            <label>起始年度</label>
+            <input type="number" id="extra_yr3" placeholder="例: 10" min="1" max="99">
+          </div>
+          <div class="mini-field">
+            <label>月額（元）</label>
+            <input type="number" id="extra_amt3" placeholder="例: 4000" min="0" step="1000">
+          </div>
+        </div>
+      </div>
+      <div class="extra-card" id="extra-card-4">
+        <div class="extra-card-head">加碼段 4</div>
+        <div class="extra-mini-grid">
+          <div class="mini-field">
+            <label>起始年度</label>
+            <input type="number" id="extra_yr4" placeholder="例: 15" min="1" max="99">
+          </div>
+          <div class="mini-field">
+            <label>月額（元）</label>
+            <input type="number" id="extra_amt4" placeholder="例: 5000" min="0" step="1000">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-box" style="margin-top:16px;border-left-color:var(--blue);border-color:rgba(77,159,255,.2);background:rgba(77,159,255,.05)">
+      <strong style="color:var(--blue)">使用說明：</strong>只需填你要加碼的年度和金額，不需要的段留空即可。定額增額每月下限 1,000 元。
+    </div>
+  </div>
+
+  <!-- CARD 3 — 試算參數 -->
+  <div class="card highlight" data-card="3">
+    <div class="card-title">
+      <div class="card-title-icon icon-teal">⚡</div>
+      試算參數與執行
+    </div>
+
+    <div class="form-grid-2">
+      <div class="field">
+        <label>保障型別</label>
+        <select id="ptype" onchange="updateUI()">
+          <option value="A">甲型｜身故 = MAX(保額, 帳戶價值)</option>
+          <option value="B">乙型｜身故 = 保額 + 帳戶價值</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>預估年投報率（%）</label>
+        <input type="number" id="ror" value="3" min="-10" max="20" step="0.1">
+      </div>
+    </div>
+
+    <button class="calc-btn" id="calc-btn" onclick="calc()">
+      <span class="btn-text">▶ 開始試算</span>
+      <span class="btn-loading" style="display:none">
+        <span class="btn-dot"></span><span class="btn-dot"></span><span class="btn-dot"></span>
+      </span>
+    </button>
+    <div class="err-msg" id="errmsg"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="summary" style="display:none">
+    <div class="card result-card" data-card="r1">
+      <div class="card-title">
+        <div class="card-title-icon icon-teal">📋</div>
+        保單基本資訊
+      </div>
+      <div class="metrics-grid" id="info-cards"></div>
+    </div>
+
+    <div class="card result-card" data-card="r2">
+      <div class="card-title">
+        <div class="card-title-icon icon-teal">📊</div>
+        年度試算結果
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>年度</th>
+              <th>年齡</th>
+              <th>目標保費</th>
+              <th>定期定額</th>
+              <th>保費費用</th>
+              <th>管理費</th>
+              <th>保險成本</th>
+              <th>年末帳戶價值</th>
+              <th>身故保障</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script src="js/data.js"></script>
+<script src="js/calc.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/animate.js"></script>
+</body>
+</html>
