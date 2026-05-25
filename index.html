@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UND 年年吉祥 試算工具</title>
+<title>UND 試算工具</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/animate.css">
@@ -11,15 +11,22 @@
 <body>
 
 <header class="header">
+  <div class="gp-corner">
+    <a class="gp-corner-brand" href="https://godzillapaul.github.io/Catalog_GodzillaPaul/" aria-label="回到主頁">
+      <div class="gp-corner-badge">
+        <img src="https://godzillapaul.github.io/Catalog_GodzillaPaul/favicon/icon-512x512.png" alt="GodzillaPaul Logo" width="42" height="42">
+      </div>
+      <div class="gp-corner-text">
+        <small>GODZILLAPAUL</small>
+        <strong>商品解方庫</strong>
+      </div>
+    </a>
+    <a class="gp-corner-back" href="https://godzillapaul.github.io/Catalog_GodzillaPaul/" aria-label="返回主頁">← <span>返回</span></a>
+  </div>
   <div class="header-inner">
-    <div class="header-badge">富邦人壽 · UNDA</div>
-    <h1>UND 年年吉祥<br><span>試算工具</span></h1>
-    <div class="header-desc">變額萬能壽險 甲型 ／ 年繳 ／ 金融機構轉帳</div>
-    <div class="header-tags">
-      <span class="htag">甲型</span>
-      <span class="htag">年繳</span>
-      <span class="htag">轉帳享1%折扣</span>
-    </div>
+    <h1>UND<br><span>試算工具</span></h1>
+    
+    
   </div>
 </header>
 
@@ -28,7 +35,7 @@
   <!-- CARD 1 — 基本資料 -->
   <div class="card" data-card="1">
     <div class="card-title">
-      <div class="card-title-icon icon-blue">👤</div>
+      <div class="card-title-icon icon-blue" aria-hidden="true"></div>
       被保人基本資料
     </div>
 
@@ -66,7 +73,7 @@
     <!-- 保額 -->
     <div class="divider" style="margin-top:22px"></div>
     <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px">
-      <span style="background:rgba(0,125,106,.10);color:var(--teal);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.06em">保額設定</span>
+      <span style="background:rgba(99,102,241,.10);color:var(--teal);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:.06em">保額設定</span>
     </div>
 
     <div class="sa-grid">
@@ -75,7 +82,7 @@
           <label>保額（元）</label>
           <input type="number" id="sa" step="10000" min="10000" value="" oninput="onSAInput()">
         </div>
-        <div class="sa-badge" id="sa-badge">✓ 最低保額（自動帶入）</div>
+        <div class="sa-badge" id="sa-badge">最低保額</div>
       </div>
       <div class="info-box">
         <div class="info-box-label">保額區間</div>
@@ -95,7 +102,7 @@
   <!-- CARD 2 — 加碼計劃 -->
   <div class="card" data-card="2">
     <div class="card-title">
-      <div class="card-title-icon icon-gold">📈</div>
+      <div class="card-title-icon icon-gold" aria-hidden="true"></div>
       分段定額增額保費（加碼計劃）
     </div>
 
@@ -154,15 +161,13 @@
       </div>
     </div>
 
-    <div class="note-box" style="margin-top:16px;border-left-color:var(--blue);border-color:rgba(77,159,255,.2);background:rgba(77,159,255,.05)">
-      <strong style="color:var(--blue)">使用說明：</strong>只需填你要加碼的年度和金額，不需要的段留空即可。定額增額每月下限 1,000 元。
-    </div>
+
   </div>
 
   <!-- CARD 3 — 試算參數 -->
   <div class="card highlight" data-card="3">
     <div class="card-title">
-      <div class="card-title-icon icon-teal">⚡</div>
+      <div class="card-title-icon icon-teal" aria-hidden="true"></div>
       試算參數與執行
     </div>
 
@@ -181,7 +186,7 @@
     </div>
 
     <button class="calc-btn" id="calc-btn" onclick="calc()">
-      <span class="btn-text">▶ 開始試算</span>
+      <span class="btn-text">開始試算</span>
       <span class="btn-loading" style="display:none">
         <span class="btn-dot"></span><span class="btn-dot"></span><span class="btn-dot"></span>
       </span>
@@ -193,7 +198,7 @@
   <div id="summary" style="display:none">
     <div class="card result-card" data-card="r1">
       <div class="card-title">
-        <div class="card-title-icon icon-teal">📋</div>
+        <div class="card-title-icon icon-teal" aria-hidden="true"></div>
         保單基本資訊
       </div>
       <div class="metrics-grid" id="info-cards"></div>
@@ -201,7 +206,7 @@
 
     <div class="card result-card" data-card="r2">
       <div class="card-title">
-        <div class="card-title-icon icon-teal">📊</div>
+        <div class="card-title-icon icon-teal" aria-hidden="true"></div>
         年度試算結果
       </div>
       <div class="tbl-wrap">
