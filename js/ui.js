@@ -4,6 +4,69 @@
 
 let userEditedSA = false;
 
+/* ── 繳費期間選擇器 ───────────────────────────────── */
+// payMode: 'age' | 'yr'
+// payVal: number (age target or year count; 999 = 終身)
+let payMode = 'age';
+let payVal  = 65;
+
+function setPayMode(mode) {
+  payMode = mode;
+  document.getElementById('pay-mode-age').classList.toggle('active', mode === 'age');
+  document.getElementById('pay-mode-yr').classList.toggle('active', mode === 'yr');
+  document.getElementById('pay-chips-age').style.display = mode === 'age' ? '' : 'none';
+  document.getElementById('pay-chips-yr').style.display  = mode === 'yr'  ? '' : 'none';
+  document.getElementById('pay-custom').value = '';
+  // Re-activate default chip for the new mode
+  const defaultVal = mode === 'age' ? 65 : 999;
+  payVal = defaultVal;
+  refreshPayChips();
+  updatePayHint();
+}
+
+function setPayChip(el, val) {
+  payVal = val;
+  document.getElementById('pay-custom').value = '';
+  refreshPayChips();
+  updatePayHint();
+}
+
+function setPayCustom(el) {
+  const v = parseInt(el.value);
+  if (!isNaN(v) && v > 0) {
+    payVal = v;
+    // clear chip active
+    document.querySelectorAll('#pay-chips-age .pay-chip, #pay-chips-yr .pay-chip')
+      .forEach(c => c.classList.remove('active'));
+    updatePayHint();
+  }
+}
+
+function refreshPayChips() {
+  const container = payMode === 'age' ? 'pay-chips-age' : 'pay-chips-yr';
+  document.querySelectorAll(`#${container} .pay-chip`).forEach(c => {
+    c.classList.toggle('active', parseInt(c.dataset.val) === payVal);
+  });
+}
+
+function updatePayHint() {
+  const el = document.getElementById('pay-hint');
+  if (!el) return;
+  if (payVal >= 999) {
+    el.textContent = '終身繳費（不限制）';
+  } else if (payMode === 'age') {
+    el.textContent = `繳費至 ${payVal} 歲`;
+  } else {
+    el.textContent = `繳費 ${payVal} 年`;
+  }
+}
+
+// 回傳供 calc.js 使用的物件
+function getPayLimit() {
+  if (payVal >= 999) return { mode: 'none', val: 999 };
+  return { mode: payMode, val: payVal };
+}
+
 function getCurrentInputs() {
   const birth  = parseRoc(document.getElementById('bday').value.trim());
   const sex    = document.getElementById('sex').value;
@@ -139,7 +202,7 @@ function calc() {
   }, 320);
 }
 
-function renderResults({ rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi_, avg_, stages, premiumStopYear }) {
+function renderResults({ rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi_, avg_, stages, premiumStopYear, payLimitLabel }) {
   // Info metrics
   const stopAge = premiumStopYear ? iAge + premiumStopYear - 1 : null;
   document.getElementById('info-cards').innerHTML = `
@@ -151,6 +214,7 @@ function renderResults({ rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi
     <div class="metric"><div class="metric-label">目標保費（年）</div><div class="metric-val sm">${fmt(target)}</div></div>
     <div class="metric"><div class="metric-label">高保費折扣</div><div class="metric-val">${pct(highDisc)}</div></div>
     <div class="metric"><div class="metric-label">分段增額</div><div class="metric-val sm">${stages.length ? stages.join(' → ') : '—'}</div></div>
+    <div class="metric metric-warn pay-limit-metric"><div class="metric-label">繳費期間</div><div class="metric-val sm" style="color:#4338ca">${payLimitLabel}</div></div>
     ${stopAge ? `<div class="metric metric-warn"><div class="metric-label">停繳保費年齡</div><div class="metric-val" style="color:var(--red,#e05)">${stopAge} 歲（第 ${premiumStopYear} 年）</div></div>` : ''}`;
 
   // 停繳提示框
@@ -169,9 +233,12 @@ function renderResults({ rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi
   // Table rows (rendered but invisible — animate.js will reveal them)
   document.getElementById('tbl-body').innerHTML = rows.map(r => {
     const trClass = r.premiumStopped ? ' class="row-stopped"' : '';
-    const stopMark = r.premiumStopped && r.yr === premiumStopYear
-      ? ' <span class="stop-chip" title="甲型保額比例限制：目標保費與定期定額停止">停繳</span>'
-      : '';
+    let stopMark = '';
+    if (r.userPayStop && r.yr === rows.find(x => x.userPayStop)?.yr) {
+      stopMark = ' <span class="stop-chip" style="background:rgba(79,70,229,.12);color:#4338ca;border-color:rgba(99,102,241,.30)" title="使用者設定繳費期間已到">目標停繳</span>';
+    } else if (!r.userPayStop && r.premiumStopped && r.yr === premiumStopYear) {
+      stopMark = ' <span class="stop-chip" title="甲型保額比例限制：目標保費與定期定額停止">停繳</span>';
+    }
     return `
     <tr${trClass}>
       <td>${r.yr}${stopMark}</td>

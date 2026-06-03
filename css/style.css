@@ -769,3 +769,74 @@ td { font-variant-numeric: tabular-nums; }
   .gp-corner-back span { display: none; }
   .gp-corner-badge { width: 36px; height: 36px; border-radius: 10px; }
 }
+
+/* ══ 繳費期間選擇器 ════════════════════════════════ */
+.pay-mode-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1.5px solid rgba(99,102,241,.30);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.pay-mode-btn {
+  flex: 1;
+  padding: 7px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2);
+  background: rgba(246,247,255,.8);
+  border: none;
+  cursor: pointer;
+  transition: background .18s, color .18s;
+  letter-spacing: .03em;
+}
+.pay-mode-btn:first-child { border-right: 1.5px solid rgba(99,102,241,.20); }
+.pay-mode-btn.active {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+}
+.pay-mode-btn:hover:not(.active) { background: rgba(99,102,241,.08); }
+
+.pay-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.pay-chip {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(99,102,241,.25);
+  background: rgba(246,247,255,.9);
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s var(--ease);
+  letter-spacing: .03em;
+}
+.pay-chip:hover { border-color: rgba(99,102,241,.50); color: #4338ca; background: rgba(99,102,241,.07); }
+.pay-chip.active {
+  background: linear-gradient(135deg, rgba(79,70,229,.14), rgba(139,92,246,.14));
+  border-color: #818cf8;
+  color: #4338ca;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.10);
+}
+#pay-custom {
+  border: 1.5px solid rgba(99,102,241,.28);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color .18s;
+}
+#pay-custom:focus { border-color: #818cf8; box-shadow: 0 0 0 4px rgba(99,102,241,.12); outline: none; }
+#pay-hint { font-size: 12px; color: #4338ca; font-weight: 700; }
+
+.metric-warn.pay-limit-metric {
+  background: linear-gradient(135deg, rgba(79,70,229,.06), rgba(139,92,246,.08));
+  border-color: rgba(99,102,241,.28);
+}

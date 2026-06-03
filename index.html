@@ -185,6 +185,37 @@
       </div>
     </div>
 
+    <!-- 繳費期間 -->
+    <div class="divider" style="margin-top:18px;margin-bottom:18px"></div>
+    <div class="field" style="margin-bottom:0">
+      <label style="margin-bottom:10px;display:block">繳費期間目標</label>
+      <div class="pay-mode-toggle">
+        <button type="button" id="pay-mode-age" class="pay-mode-btn active" onclick="setPayMode('age')">存到幾歲</button>
+        <button type="button" id="pay-mode-yr"  class="pay-mode-btn"        onclick="setPayMode('yr')">存幾年</button>
+      </div>
+
+      <div id="pay-chips-age" class="pay-chips">
+        <button type="button" class="pay-chip" data-val="55"  onclick="setPayChip(this,55)">55歲</button>
+        <button type="button" class="pay-chip" data-val="60"  onclick="setPayChip(this,60)">60歲</button>
+        <button type="button" class="pay-chip active" data-val="65" onclick="setPayChip(this,65)">65歲</button>
+        <button type="button" class="pay-chip" data-val="70"  onclick="setPayChip(this,70)">70歲</button>
+        <button type="button" class="pay-chip" data-val="999" onclick="setPayChip(this,999)">終身</button>
+      </div>
+      <div id="pay-chips-yr" class="pay-chips" style="display:none">
+        <button type="button" class="pay-chip" data-val="10"  onclick="setPayChip(this,10)">10年</button>
+        <button type="button" class="pay-chip" data-val="20"  onclick="setPayChip(this,20)">20年</button>
+        <button type="button" class="pay-chip" data-val="30"  onclick="setPayChip(this,30)">30年</button>
+        <button type="button" class="pay-chip" data-val="40"  onclick="setPayChip(this,40)">40年</button>
+        <button type="button" class="pay-chip" data-val="999" onclick="setPayChip(this,999)">終身</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+        <input type="number" id="pay-custom" placeholder="自訂" min="1" max="120"
+               style="width:90px" oninput="setPayCustom(this)">
+        <span class="hint" id="pay-hint" style="margin:0">繳費至 65 歲</span>
+      </div>
+    </div>
+
     <button class="calc-btn" id="calc-btn" onclick="calc()">
       <span class="btn-text">開始試算</span>
       <span class="btn-loading" style="display:none">

@@ -94,6 +94,9 @@ function runCalc() {
   const ror    = parseFloat(document.getElementById('ror').value) / 100;
   const monthly = parseFloat(document.getElementById('monthly').value) || 0;
 
+  // 繳費期間限制（由 ui.js getPayLimit 提供）
+  const payLimit = (typeof getPayLimit === 'function') ? getPayLimit() : { mode: 'none', val: 999 };
+
   // Validation
   if (!birth)           return { error: '生日格式錯誤，請輸入民國生日如 690831' };
   if (monthly < 2000)   return { error: '月存金額下限 2,000 元' };
@@ -122,6 +125,14 @@ function runCalc() {
   const rows = [];
   let premiumStopYear = null; // 第十一條：目標保費停止的首個年度
 
+  // 繳費期間標籤
+  let payLimitLabel = '終身繳費';
+  if (payLimit.mode === 'age' && payLimit.val < 999) {
+    payLimitLabel = `繳費至 ${payLimit.val} 歲`;
+  } else if (payLimit.mode === 'yr' && payLimit.val < 999) {
+    payLimitLabel = `繳費 ${payLimit.val} 年`;
+  }
+
   for (let yr = 1; yr <= years; yr++) {
     if (yr > 1 && av === 0) break;
     const ageStart  = iAge + yr - 1;
@@ -130,15 +141,20 @@ function runCalc() {
     const adjFee    = yr <= 5 ? Math.max(0, baseFee - highDisc - PAYWAY_DISC) : 0;
     let yFee = 0, yMgmt = 0, yCOI = 0;
 
+    // 繳費期間判斷：使用者設定的停繳條件
+    const userPayStop =
+      (payLimit.mode === 'age' && payLimit.val < 999 && ageStart >= payLimit.val) ||
+      (payLimit.mode === 'yr'  && payLimit.val < 999 && yr > payLimit.val);
+
     for (let mo = 1; mo <= 12; mo++) {
       globalMonth++;
 
       // ── 第十一條甲型檢核（僅第1個月繳目標保費時判斷）──
       // 當次預定投資保費 = 目標保費淨額 + 超額保費淨額（含當月超額）
-      let O_t = (mo === 1) ? target : 0;
-      let O_e = getExtraAtYear(yr);
+      let O_t = (mo === 1 && !userPayStop) ? target : 0;
+      let O_e = userPayStop ? 0 : getExtraAtYear(yr);
 
-      if (ptype === 'A' && mo === 1 && globalMonth > 1) {
+      if (ptype === 'A' && mo === 1 && globalMonth > 1 && !userPayStop) {
         // 計算「當次預定投資保費金額」= 目標保費扣費用後 + 超額扣費用後 - 管理費
         const investAmt_t = O_t * (1 - adjFee);
         const investAmt_e = O_e * (1 - 0.05);
@@ -179,7 +195,7 @@ function runCalc() {
     }
     av = Math.round(av);
     const death = ptype === 'B' ? Math.round(SA + av) : Math.round(Math.max(SA, av));
-    const stopped = (premiumStopYear !== null && yr >= premiumStopYear);
+    const stopped = userPayStop || (premiumStopYear !== null && yr >= premiumStopYear);
     rows.push({
       yr, age: ageStart, feeRate: adjFee,
       yearTarget: stopped ? 0 : target,
@@ -188,7 +204,8 @@ function runCalc() {
       yearMgmt: Math.round(yMgmt),
       yearCOI: Math.round(yCOI),
       av, death,
-      premiumStopped: stopped   // 表格可用此欄位標記
+      premiumStopped: stopped,
+      userPayStop   // 區分使用者設定停繳 vs 第十一條強制停繳
     });
   }
 
@@ -201,5 +218,5 @@ function runCalc() {
     if (y && a) stages.push(`年${y}: ${fmt(parseFloat(a))}/月`);
   }
 
-  return { rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi_, avg_, stages, premiumStopYear };
+  return { rows, iAge, minSA, maxSA, SA, target, highDisc, lo_, hi_, avg_, stages, premiumStopYear, payLimitLabel };
 }
